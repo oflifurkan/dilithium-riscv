@@ -6,6 +6,7 @@ set(AES256CTR_SRCS aes256ctr.c)
 set(TEST_DILITHIUM_SRCS test/test_dilithium.c randombytes.c)
 set(TEST_VECTORS_SRCS test/test_vectors.c)
 set(TEST_SPEED_SRCS test/test_speed.c test/speed_print.c test/cpucycles.c randombytes.c)
+set(RISCV_SRCS ${DILITHIUM_SRCS} riscv/main.c randombytes.c)
 
 if(MSVC)
   add_compile_options(/nologo /O2 /W4 /wd4146 /wd4244)
@@ -17,6 +18,13 @@ endif()
 
 add_library(fips202_ref ${FIPS202_SRCS})
 add_library(aes256ctr_ref ${AES256CTR_SRCS})
+
+# RISCV Exec
+add_library(lib_riscv_exec ${DILITHIUM_FIPS202_SRCS})
+target_compile_definitions(lib_riscv_exec PUBLIC DILITHIUM_MODE=2)
+target_link_libraries(lib_riscv_exec INTERFACE fips202_ref)
+add_executable(riscv_exec ${RISCV_SRCS})
+target_link_libraries(riscv_exec lib_riscv_exec)
 
 # Dilithium 2
 add_library(dilithium2_ref ${DILITHIUM_FIPS202_SRCS})
